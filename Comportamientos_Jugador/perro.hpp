@@ -6,7 +6,10 @@
 class ComportamientoPerro : public Comportamiento{
 
   public:
-    ComportamientoPerro(unsigned int size = 0) : Comportamiento(size){}
+    ComportamientoPerro(unsigned int size = 0) : Comportamiento(size){
+      last_action = actIDLE;
+      girando = false;
+    }
     ComportamientoPerro(const ComportamientoPerro & comport) : Comportamiento(comport){}
     ~ComportamientoPerro(){}
 
@@ -16,6 +19,10 @@ class ComportamientoPerro : public Comportamiento{
 
 
     ComportamientoPerro * clone(){return new ComportamientoPerro(*this);}
+
+  private:
+    Action last_action;
+    bool girando;
 };
 
 

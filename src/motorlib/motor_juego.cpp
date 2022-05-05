@@ -10,17 +10,14 @@ bool actuacionJugador(unsigned char celda_inicial, unsigned char celda_fin, Acti
   unsigned char celdaRand;
   bool salida = false;
 
-  if (accion != actIDLE)
+  int gasto = monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+  if (gasto > monitor.get_entidad(0)->getBateria())
   {
-    int gasto = monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
-    if (gasto > monitor.get_entidad(0)->getBateria())
-    {
-      monitor.get_entidad(0)->setBateria(0);
-      return false;
-    }
+    monitor.get_entidad(0)->setBateria(0);
+    return false;
   }
 
-  monitor.get_entidad(0)->fixBateria_default();
+  //monitor.get_entidad(0)->fixBateria_default();
   switch (accion)
   {
   case actFORWARD:
@@ -85,7 +82,7 @@ bool actuacionJugador(unsigned char celda_inicial, unsigned char celda_fin, Acti
           monitor.get_entidad(0)->setObjetivos(monitor.get_active_objetivos());
         }
       }
-      monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+      //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
     }
     else
     {
@@ -123,28 +120,28 @@ bool actuacionJugador(unsigned char celda_inicial, unsigned char celda_fin, Acti
   case actTURN_R:
     monitor.get_entidad(0)->giroDch();
     monitor.girarJugadorDerecha(90);
-    monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+    //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
     salida = true;
     break;
 
   case actSEMITURN_R:
     monitor.get_entidad(0)->giro45Dch();
     monitor.girarJugadorDerecha(45);
-    monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+    //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
     salida = true;
     break;
 
   case actTURN_L:
     monitor.get_entidad(0)->giroIzq();
     monitor.girarJugadorIzquierda(90);
-    monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+    //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
     salida = true;
     break;
 
   case actSEMITURN_L:
     monitor.get_entidad(0)->giro45Izq();
     monitor.girarJugadorIzquierda(45);
-    monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+    //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
     salida = true;
     break;
 
@@ -154,13 +151,12 @@ bool actuacionJugador(unsigned char celda_inicial, unsigned char celda_fin, Acti
     salida = true;
     break;
 
-
   case actIDLE:
     if (celda_inicial == 'X')
     { // Casilla Rosa (Recarga)
       monitor.get_entidad(0)->increaseBateria(10);
     }
-    monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
+    //monitor.get_entidad(0)->fixBateria_sig_accion(celda_inicial, accion);
 
     salida = true;
     break;
@@ -238,18 +234,18 @@ bool actuacionNPC(unsigned int entidad, unsigned char celda, Action accion, unsi
       break;
 
     case actWHEREIS: //Esta accion para un lobo es empujar equivalente a un actPUSH
-      bool esta_jugador_delante = (monitor.getMapa()->casillaOcupada(entidad) == 0);
+      cout << "Recibido un empujon por un lobo\n";
+      bool esta_jugador_delante = monitor.getMapa()->casillaOcupada(entidad) == 0;
       if (esta_jugador_delante){
-        monitor.get_entidad(0)->seAostio();
         pair <int,int> casilla = monitor.getMapa()->NCasillasDelante(entidad,2);
         if (monitor.getMapa()->QuienEnCasilla(casilla.first,casilla.second) == -1 and 
             monitor.getMapa()->getCelda(casilla.first,casilla.second) != 'M' and
             monitor.getMapa()->getCelda(casilla.first,casilla.second) != 'P')
             if (aleatorio(2) == 1){ //Solo ocurre la mitad de las veces que el lobo lo intenta.
               monitor.get_entidad(0)->setPosicion(casilla.first, casilla.second);
-              monitor.get_entidad(0)->Increment_Empujones();      
-              monitor.get_entidad(entidad)->giro45Izq();
+              monitor.get_entidad(0)->Increment_Empujones();
               monitor.get_entidad(entidad)->giroIzq();
+              monitor.get_entidad(entidad)->giro45Izq();
             }
       }
       out = true;
@@ -424,19 +420,14 @@ void lanzar_motor_juego2(MonitorJuego &monitor)
     nucleo_motor_juego(monitor, -1);
   }
 
-  if (monitor.mostrarResultados() and monitor.getLevel() < 2)
+  if (monitor.mostrarResultados() and monitor.getLevel() == 2)
   {
     cout << "Longitud del camino: " << 3001 - monitor.get_entidad(0)->getInstantesPendientes() << endl;
     monitor.setMostrarResultados(false);
   }
-  else if (monitor.mostrarResultados() and monitor.getLevel() < 3)
+  else if (monitor.mostrarResultados() and monitor.getLevel() == 3)
   {
     cout << "Coste de Bateria: " << 3000 - monitor.get_entidad(0)->getBateria() << endl;
-    monitor.setMostrarResultados(false);
-  }
-  else if (monitor.mostrarResultados() and monitor.getLevel() < 4)
-  {
-    cout << "Porcentaje de mapa descubierto: " << monitor.CoincidenciaConElMapa() << endl;
     monitor.setMostrarResultados(false);
   }
   else if (monitor.mostrarResultados())
